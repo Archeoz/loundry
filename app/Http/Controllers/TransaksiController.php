@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Transaksi;
-use App\Http\Requests\StoreTransaksiRequest;
-use App\Http\Requests\UpdateTransaksiRequest;
-use App\Models\DetailTransaksi;
+use Carbon\Carbon;
+use App\Models\Paket;
 use App\Models\Member;
 use App\Models\Outlet;
-use App\Models\Paket;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use App\Models\DetailTransaksi;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreTransaksiRequest;
+use App\Http\Requests\UpdateTransaksiRequest;
 
 class TransaksiController extends Controller
 {
@@ -21,24 +22,30 @@ class TransaksiController extends Controller
 
     public function belipaket(Request $request)
     {
-        $id_insert = $request->paket;
-        // dd($id_insert);
-        $paket = Paket::where('id_paket', $id_insert)->first();
-        // dd($paket);
-        $pilihan = session()->get('pilihan',[]);
+        // return $request->paket;
+        if ($request->has('paket')){
 
-        if (isset($pilihan[$id_insert])) {
-            $pilihan[$id_insert]['jumlah']++;
-        }else{
-            $pilihan[$id_insert] = [
-                'id_paket' => $id_insert,
-                'id_outlet' => $paket->id_outlet,
-                'jenis' => $paket->jenis,
-                'nama_paket' => $paket->nama_paket,
-                'harga' => $paket->harga,
-                'jumlah' => 1,
-            ];
+            $id_insert = $request->paket;
+            // dd($id_insert);
+            $paket = Paket::where('id_paket', $id_insert)->first();
+            // dd($paket);
+            $pilihan = session()->get('pilihan',[]);
+            if (isset($pilihan[$id_insert])) {
+                $pilihan[$id_insert]['jumlah']+5;
+            }else{
+                $pilihan[$id_insert] = [
+                    'id_paket' => $id_insert,
+                    'id_outlet' => $paket->id_outlet,
+                    'jenis' => $paket->jenis,
+                    'nama_paket' => $paket->nama_paket,
+                    'harga' => $paket->harga,
+                    'jumlah' => $request->jumlah,
+                ];
+            }
+        }else {
+            return back();
         }
+
         session()->put('pilihan',$pilihan);
         // $id_insert = $request->paket;
         // $paket = Paket::where('id_paket', $id_insert)->first();
@@ -91,12 +98,14 @@ class TransaksiController extends Controller
     public function hapus($id_paket)
     {
         $pilihan = session()->get('pilihan');
-        if (isset($pilihan[$id_paket])) {
-            unset($pilihan[$id_paket]);
-            session()->put('pilihan',$pilihan);
+        // if (isset($pilihan[$id_paket])) {
+        //     unset($pilihan[$id_paket]);
+        //     session()->put('pilihan',$pilihan);
 
-        }
+        // }
         // session()->forget('pilihan'[$id_paket]);
+        unset($pilihan[$id_paket]);
+        session()->put('pilihan',$pilihan);
         return back();
     }
 
@@ -138,8 +147,10 @@ class TransaksiController extends Controller
         $member = Member::all();
 
         if ($user->role == 'admin') {
-            $paket = Paket::all();
+            $paket = Paket::join('outlets','outlets.id_outlet','=','pakets.id_outlet')
+            ->select('outlets.*','pakets.*')->get();
             $outlet = Outlet::all();
+
 
             return view('transaksi.register', compact('user','paket','outlet','member'));
         }
@@ -157,34 +168,45 @@ class TransaksiController extends Controller
         $number = 0;
         $pajak = 0.11;
 
+        // $ya = $request->diskon;
+        $total = $request->totalan;
+        $didiskon = ($total + $request->biayatambahan) * $request->diskon;
+        $costtambahan = $total + $request->biayatambahan - $didiskon;
+        $totalpajak = $costtambahan * $pajak;
+        $totals = $number + $costtambahan + $totalpajak;
 
-        if ($tangkap = $request->statusbayar == 'dibayar') {
+        // return $totals;
+
+        // Menghitung tanggal batas waktu 4 hari ke depan
+        $batasWaktu = Carbon::now()->addDays(4);
+        //lihat sudah bayar atau belum
+        if ($request->bayarnow >= $total) {
             $buat = [
                 'id_outlet' => $request->outlet,
                 'id_member' => $request->member,
                 'id_user' => $user->id,
                 'tgl' => now(),
-                'batas_waktu' => $request->bataswaktu,
+                'batas_waktu' => null,
                 'tgl_bayar' =>now(),
                 'biaya_tambahan' => $request->biayatambahan,
                 'diskon' => $request->diskon,
-                'pajak' => $pajak,
-                'status' => $request->status,
-                'dibayar' => $request->statusbayar,
+                'pajak' => $totalpajak,
+                'status' => "baru",
+                'dibayar' => "dibayar",
             ];
-        } else if($tangkap = $request->statusbayar == 'belum_dibayar') {
+        } else if($request->bayarnow < $total) {
             $buat = [
                 'id_outlet' => $request->outlet,
                 'id_member' => $request->member,
                 'id_user' => $user->id,
                 'tgl' => now(),
-                'batas_waktu' => $request->bataswaktu,
-                // 'tgl_bayar' =>now(),
+                'batas_waktu' => $batasWaktu,
+                'tgl_bayar' =>null,
                 'biaya_tambahan' => $request->biayatambahan,
                 'diskon' => $request->diskon,
-                'pajak' => $pajak,
-                'status' => $request->status,
-                'dibayar' => $request->statusbayar,
+                'pajak' => $totalpajak,
+                'status' => "baru",
+                'dibayar' => "belum_dibayar",
             ];
         }
         Transaksi::create($buat);
@@ -194,7 +216,7 @@ class TransaksiController extends Controller
         // $sessi = session()->get('totalhargapaket');
         // dd($sesipilihan);
         //mengambil inputan dari blade
-        $total = $request->totalan;
+
         //
 
         // Mengambil semua data di sesi pilihan
@@ -203,16 +225,23 @@ class TransaksiController extends Controller
             $semuadatasesi[] = $value['id_paket'];
         }
         //
-
+        // dd($semuadatasesi);
         // Menggabungkan semua data dari sesi pilihan menjadi satu string, dengan koma sebagai pemisah
         $penyatuandatasesi = implode('.',$semuadatasesi);
 
         //
         // return $sesipilihan;
-            $totalpajak = $total * $pajak;
-            $total = $number + $total+($request->biayatambahan - $request->diskon) - $totalpajak;
 
-            $totalhargapaket = $request->totalhargapaket;
+        $totaljumlahperpaket = [];
+        $totalpricepaket = [];
+        foreach ($sesipilihan as $sesipilihan) {
+            $totaljumlahpaket[] = $sesipilihan['jumlah'];
+            $totalpricepaket[] = $sesipilihan['jumlah'] * $sesipilihan['harga'];
+        }
+        // dd($totaljumlahpaket);
+        // dd($totalpricepaket);
+
+            // $totalhargapaket = $request->totalhargapaket;
 
             // if (!empty($sesipilihan)) {
 
@@ -243,8 +272,9 @@ class TransaksiController extends Controller
             $orderdetailcreate = [
                 'id_transaksi' => $transaksi->id_transaksi,
                 'id_paket' => $value['id_paket'],
-                // 'totalan' => $totalhargapaket,
-                'qty' => $total,
+                'jumlah_paket' => $sesipilihan['jumlah'],
+                'total_harga_paket' => $sesipilihan['jumlah'] * $sesipilihan['harga'],
+                'qty' => $totals,
                 'keterangan' => $request->keterangan,
             ];
             // dd($orderdetailcreate);
@@ -263,7 +293,10 @@ class TransaksiController extends Controller
     {
         // return $id_transaksi;
         $transaksi = Transaksi::where('id_transaksi', $id_transaksi)->first();
-        return view('transaksi.edit',compact('transaksi'));
+        $namapelanggan = Transaksi::join('members','members.id_member','=','transaksi.id_member')
+        ->select('member.*','transaksi.*');
+        // dd($namapelanggan);
+        return view('transaksi.edit',compact('transaksi','namapelanggan'));
     }
 
     /**
@@ -319,5 +352,9 @@ class TransaksiController extends Controller
         // $transaksi->delete();
 
         return back();
+    }
+
+    public function error(){
+
     }
 }

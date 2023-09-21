@@ -49,6 +49,7 @@
                     <th>Tgl Masuk</th>
                     <th>Batas Waktu</th>
                     <th>Tgl Bayar</th>
+                    <th>Keterangan</th>
                     <th>Status Pembayaran</th>
                     <th>Status</th>
                 </tr>
@@ -76,7 +77,7 @@
                             {{ $item->nama_paket }}
                         @endforeach
                     </td> --}}
-                    <td>{{ $generate->total }}</td>
+                    <td>{{ $genera  te->total }}</td>
                     <td>{{ $generate->tgl_masuk }}</td>
                     <td>{{ $generate->batas_waktu_bayar }}</td>
                     <td>{{ $generate->tgl_bayar }}</td>

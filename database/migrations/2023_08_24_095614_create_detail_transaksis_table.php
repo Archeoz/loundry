@@ -15,6 +15,7 @@ return new class extends Migration
             $table->increments('id_detail_transaksi');
             $table->integer('id_transaksi');
             $table->integer('id_paket');
+            $table->integer('jumlah_paket');
             $table->double('qty');
             $table->string('keterangan');
             $table->timestamps();

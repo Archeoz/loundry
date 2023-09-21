@@ -10,14 +10,16 @@ use Illuminate\Http\Request;
 
 class PaketController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+
         $paket = Paket::join('outlets','outlets.id_outlet','=','pakets.id_outlet')
         ->select('outlets.*','pakets.*')->get();
-
+        // return $paket->id_paket;
         return view('paket.data',compact('paket'));
     }
 
@@ -93,6 +95,7 @@ class PaketController extends Controller
         ]);
         return redirect('laundry/paket');
     }
+
 
     /**
      * Remove the specified resource from storage.

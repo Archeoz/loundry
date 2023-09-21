@@ -3,6 +3,7 @@
 <div class="container">
     <div class="row">
         <h1 class="h4 text-gray-900 mb-4">ID Transaksi : {{ $transaksi->id_transaksi }}</h1>
+        {{-- <h1 class="h4 text-gray-900 mb-4">Nama Pelanggan : {{ $namapelanggan->nama_member }}</h1> --}}
     </div>
     <div class="card o-hidden border-0 shadow-lg">
         <div class="card-body p-0">

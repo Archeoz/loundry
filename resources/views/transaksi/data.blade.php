@@ -22,13 +22,14 @@
                             <th>Member</th>
                             <th>Outlet</th>
                             <th>Paket</th>
+                            <th>Jumlah</th>
                             <th>Total Harga Paket</th>
-                            <th>Total</th>
+                            <th>Total Keseluruhan</th>
                             <th>Tgl Masuk</th>
                             <th>Batas Waktu</th>
                             <th>Tgl Bayar</th>
+                            <th>Keterangan</th>
                             <th>Status Pembayaran</th>
-                            <th class="hidden"></th>
                             <th>Status</th>
                             <th>Opsi</th>
                         </tr>
@@ -45,7 +46,8 @@
                             <td>{{ $transaksis->nama_member }}</td>
                             <td>{{ $transaksis->nama_outlet }}</td>
                             <td>{{ $transaksis->nama_paket }}</td>
-                            <td>{{ $transaksis->totalan }}</td>
+                            <td>{{ $transaksis->jumlah_paket }}</td>
+                            <td>{{ $transaksis->total_harga_paket }}</td>
                             {{-- <td>
                                 @foreach (explode('.',$transaksis->nama_paket) as $item)
                                     {{ $item }}
@@ -60,6 +62,7 @@
                             <td>{{ $transaksis->tgl }}</td>
                             <td>{{ $transaksis->batas_waktu }}</td>
                             <td>{{ $transaksis->tgl_bayar }}</td>
+                            <td>{{ $transaksis->keterangan }}</td>
                             @if ($transaksis->dibayar == 'dibayar')
                                 <td>
                                     <a href="{{ url('laundry/updatetransaksipage/'.$transaksis->id_transaksi) }}" class="btn btn-success">{{ $transaksis->dibayar }}</a>
@@ -70,7 +73,6 @@
                                     <a href="{{ url('laundry/updatetransaksipage/'.$transaksis->id_transaksi) }}" class="btn btn-warning">{{ $transaksis->dibayar }}</a>
                                 </td>
                             @endif
-                            <td></td>
                             @if ($transaksis->status == 'baru')
                                 <td>
                                     <a href="{{ url('laundry/updatetransaksipage/'.$transaksis->id_transaksi) }}" class="btn btn-light">{{ $transaksis->status }}</a>

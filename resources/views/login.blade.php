@@ -100,7 +100,8 @@
 
     <!-- Custom scripts for all pages-->
     <script src="sbadmin/js/sb-admin-2.min.js"></script>
-
+    {{-- Sweet Alert --}}
+    @include('sweetalert::alert')
 </body>
 
 </html>

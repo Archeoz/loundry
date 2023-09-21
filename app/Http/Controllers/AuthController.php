@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class AuthController extends Controller
 {
 
     public function index()
     {
-        if (Auth::user()) {
+        // $username = Auth::user()->username;
+        // if (Auth::user()) {
             // if ($user->role == 'admin') {
             //     return redirect('laundry/pelanggan');
             // }
@@ -20,10 +22,12 @@ class AuthController extends Controller
             // if ($user->role == 'owner') {
             //     return redirect('laundry/index');
             // }
-            return view('index');
+            // Alert::success('Berhasil Login', 'Selamat Datang,');
+            // alert()->success('Title','Lorem Lorem Lorem');
+            // return redirect('index');
 
-        }
-        return view('/');
+        // }
+        // return redirect('/');
     }
 
     public function postlogin(Request $request)
@@ -46,8 +50,17 @@ class AuthController extends Controller
             // if ($user->role == 'owner') {
             //     return redirect('laundry/index');
             // }
+            Alert::success('Berhasil Login', 'Selamat Datang');
             return view('index');
         }
+        // if (!Auth::attempt($data['email'])) {
+        //     Alert::warning('Login Gagal', 'Email Salah');
+        //     return redirect('/');
+
+        // }elseif(!Auth::attempt($data['password'])){
+        //     Alert::warning('Login Gagal', 'Password Salah');
+        //     return redirect('/');
+        // }
         return redirect('/');
     }
 

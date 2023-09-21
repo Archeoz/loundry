@@ -17,13 +17,21 @@
                                 <div class="col-md-8 mb-2">
                                     <span>Pilih Paket</span>
                                 </div>
-                                <div class="col-md-5 mb-3">
-                                    <select class="form-control form-select" name="paket" id="" onchange="this.form.submit()" style="border-radius: 20px;height:50px;">
+                                <div class="col-md-6 mb-2">
+                                    <select class="form-control form-select" name="paket" id="" style="border-radius: 15px;height:40px;">
                                         <option value="" disabled selected>---Pilih Paket---</option>
                                         @foreach ($paket as $paket)
-                                        <option value="{{ $paket->id_paket }}">{{ $paket->nama_paket }}</option>
+                                        <option value="{{ $paket->id_paket }}">{{ $paket->nama_paket }} --- Outlet : {{ $paket->nama_outlet }}</span></option>
                                         @endforeach
                                     </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="number" class="form-control form-control-user" style="border-radius: 15px;height:40px;" name="jumlah" placeholder="--- Isikan Jumlah Paket ---">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3 ml-3 mb-2">
+                                        <button class="btn btn-primary" type="submit">Submit</button>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -105,7 +113,7 @@
                         <form class="user" action="{{ url('laundry/registertransaksi') }}" enctype="multipart/form-data" method="POST">
                             @csrf
 
-                            <input type="hidden" value="{{ $total }}" name="totalan">
+                            <input type="hidden" value="{{ $total }}" id="totals" name="totalan">
                             {{-- <input type="hidden" value="{{ $totalhargapaket }}" name="totalhargapaket"> --}}
                             <div class="row mt-3">
                                 <div class="col-md-6 form-group">
@@ -151,29 +159,13 @@
                                 </div>
                                 @endif
                                 <div class="col-md-6 form-group">
-                                    <div class="col-md-4">
-                                        <label for="">Status Bayar : </label>
+                                    <div class="col-md-5">
+                                        <label for="">Bayar Sekarang : </label>
                                     </div>
                                     <div class="mb-3 mb-sm-0">
-                                        <select class="form-control form-control-select" name="statusbayar" id="exampleSelect" placeholder="Select Option" style="border-radius: 20px;height:50px;">
-                                            <option value="" disabled selected>Pilih Status Bayar</option>
-                                            <option value="dibayar">Di Bayar</option>
-                                            <option value="belum_dibayar">Belum Dibayar</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 form-group">
-                                    <div class="col-md-4">
-                                        <label for="">Status : </label>
-                                    </div>
-                                    <div class="mb-3 mb-sm-0">
-                                        <select class="form-control form-control-select" name="status" id="exampleSelect" placeholder="Select Option" style="border-radius: 20px;height:50px;">
-                                            {{-- <option value="" disabled selected>Pilih Status</option> --}}
-                                            <option value="baru" selected>Baru</option>
-                                            {{-- <option value="proses">Proses</option>
-                                            <option value="selesai">Selesai</option>
-                                            <option value="diambil">Di Ambil</option> --}}
-                                        </select>
+                                        <input type="number" class="form-control form-control-user"  name="bayarnow" id="bayarnow" onkeyup="hitung();"
+                                        placeholder="Insert Duit">
+                                        <span class="text-danger ml-2" style="font-size: 12px">* Jika Tidak Membayar,Kosongkan</span>
                                     </div>
                                 </div>
                                 <div class="col-md-6 form-group">
@@ -181,7 +173,7 @@
                                         <label for="">Biaya Tambahan : </label>
                                     </div>
                                     <div class="mb-3 mb-sm-0">
-                                        <input type="number" class="form-control form-control-user" id="exampleFirstName" name="biayatambahan"
+                                        <input type="number" class="form-control form-control-user" id="biayatambahan" name="biayatambahan" onkeyup="hitung();"
                                             placeholder="Insert Biaya Tambahan">
                                     </div>
                                 </div>
@@ -190,11 +182,18 @@
                                         <label for="">Diskon : </label>
                                     </div>
                                     <div class="mb-3 mb-sm-0">
-                                        <input type="number" class="form-control form-control-user" id="exampleFirstName" name="diskon"
-                                            placeholder="Insert Diskon">
+                                        {{-- <input type="number" class="form-control form-control-user" id="diskon" name="diskon" onkeyup="hitung();"
+                                            placeholder="Insert Diskon"> --}}
+                                        <select class="form-control form-control-select" name="diskon" id="diskon" onkeyup="hitung();" style="border-radius: 20px;height:50px;">
+                                            <option value="0">Batal</option>
+                                            <option value="0.10">10%</option>
+                                            <option value="0.25">25%</option>
+                                            <option value="0.50">50%</option>
+                                            <option value="0.75">75%</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="col-md-6 form-group">
+                                {{-- <div class="col-md-6 form-group">
                                     <div class="col-md-8">
                                         <label for="">Batas Waktu Bayar : </label>
                                     </div>
@@ -202,7 +201,7 @@
                                         <input type="date" class="form-control form-control-user" id="exampleFirstName" name="bataswaktu"
                                             placeholder="Insert Batas Waktu">
                                     </div>
-                                </div>
+                                </div> --}}
                                 <div class="col-md-6 form-group">
                                     <div class="col-md-4">
                                         <label for="">Keterangan : </label>
@@ -210,11 +209,23 @@
                                     <div class="mb-3 mb-sm-0">
                                         <input type="text" class="form-control form-control-user" id="exampleFirstName"  name="keterangan"
                                             placeholder="Insert Keterangan">
-
-
                                     </div>
                                 </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-6">
+                                    <label>Total Bayar : </label>
+                                    <div class="mb-3">
+                                        <span class="form-control" type="text" id="tampiltotal"></span>
+                                    </div>
                                 </div>
+                                <div class="col-6">
+                                    <label>Kembali : </label>
+                                    <div class="mb-3">
+                                        <span class="form-control" type="text" id="tampilkembali"></span>
+                                    </div>
+                                </div>
+                            </div>
                                 <div class="row mt-5">
                                     <div class="col-md-6">
                                         <a class="btn btn-danger btn-user btn-block" href="{{ url('laundry/batal') }}">
@@ -253,4 +264,111 @@
         </div>
     </div>
 </div>
+<script>
+    function hitung()
+    {
+        var total = parseFloat(document.getElementById('totals').value);
+        var biayatambahan = parseFloat(document.getElementById('biayatambahan').value) || 0;
+        var diskon = parseFloat(document.getElementById('diskon').value) || 0;
+        var pajak = 0.11;
+        var bayarnow = parseFloat(document.getElementById('bayarnow').value) || 0;
+        // var bayarskrg = ;
+
+        var didiskon = (total + biayatambahan) * diskon;
+        var totalbiaya = total + biayatambahan - didiskon;
+        var dipajak = totalbiaya * pajak;
+        var hasil = totalbiaya + dipajak;
+
+        if (bayarnow === 0) {
+            var bayarskrg = 0;
+        } else {
+            var bayarskrg = bayarnow - hasil;
+        }
+
+        // if (isNaN('hasil')) {
+        //     hasil = 0;
+        // }
+
+        var tampiltotal =  document.getElementById('tampiltotal');
+        // tampiltotal.textContent = 'Rp. ' + formatRibuan(Math.ceil(hasil));
+        tampiltotal.textContent = 'Rp. ' + Math.ceil(hasil);
+
+        var tampilkembali = document.getElementById('tampilkembali');
+        // tampilkembali.textContent = 'Rp. ' + formatRibuan(Math.ceil(bayarskrg));
+        tampilkembali.textContent = 'Rp. ' + Math.ceil(bayarskrg);
+    }
+
+    function formatRibuan(angka) {
+        // return (Math.round(angka * 0.001) * 1000).toLocaleString();
+        // Membulatkan angka ke ribuan terdekat dengan mempertahankan tiga digit paling awal
+        var ribuanTerdekat = Math.ceil(angka / 1000) * 1000;
+
+        // Menggunakan toLocaleString() untuk menambahkan tanda koma sebagai pemisah ribuan
+        return ribuanTerdekat.toLocaleString();
+    }
+    // function hitungkembalian()
+    // {
+    //     var duit = parseFloat(document.getElementById('bayarnow').value) || 0;
+    //     var total = parseFloat(document.getElementById('tampiltotal').value) || 0;
+
+    //     var kembali = duit - total;
+    //     // if (isNaN('kembali')) {
+    //     //         kembali = 0;
+    //     // }
+
+    //     var tampilkembali = document.getElementById('tampilkembali');
+    //     tampilkembali.textContent = 'Rp. ' + Math.ceil(total);
+    // }
+
+    // Panggil fungsi hitung saat halaman dimuat
+    document.addEventListener("DOMContentLoaded", function() {
+        hitung();
+        formatRibuan();
+    });
+
+    //panggil fungsi hitung kembali
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     hitungkembalian();
+    // });
+
+    // Panggil fungsi hitung saat input biaya tambahan atau diskon berubah
+    document.getElementById('biayatambahan').addEventListener("input", hitung);
+    document.getElementById('diskon').addEventListener("input", hitung);
+    document.getElementById('bayarnow').addEventListener("input", hitung);
+</script>
+{{-- <script>
+    var total = 0; // Inisialisasi total
+
+    function hitung() {
+        var biayatambahan = parseFloat(document.getElementById('biayatambahan').value) || 0;
+        var diskon = parseFloat(document.getElementById('diskon').value) || 0;
+        var pajak = 0.11;
+
+        var totalbiaya = total + biayatambahan - diskon;
+        var dipajak = totalbiaya * pajak;
+        var hasil = totalbiaya + dipajak;
+
+        var tampiltotal =  document.getElementById('tampiltotal');
+        tampiltotal.textContent = 'Rp. ' + Math.ceil(hasil);
+    }
+
+    function hitungkembalian() {
+        var duit = parseFloat(document.getElementById('bayarnow').value) || 0;
+        var kembali = duit - total;
+
+        var tampilkembali = document.getElementById('tampilkembali');
+        tampilkembali.textContent = 'Rp. ' + Math.ceil(kembali);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        hitung(); // Panggil hitung saat halaman dimuat
+        hitungkembalian(); // Panggil hitungkembalian saat halaman dimuat
+    });
+
+    // Panggil fungsi hitung saat input biaya tambahan atau diskon berubah
+    document.getElementById('biayatambahan').addEventListener("input", hitung);
+    document.getElementById('diskon').addEventListener("input", hitung);
+    document.getElementById('bayarnow').addEventListener("input", hitungkembalian);
+
+</script> --}}
 @endsection

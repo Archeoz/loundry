@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use RealRashid\SweetAlert\Facades\Alert;
+
 
 class IndexController extends Controller
 {
@@ -13,9 +15,7 @@ class IndexController extends Controller
      */
     public function login()
     {
-        if (Auth::user()) {
-            return redirect('index')->with('pesan','test');
-        }
+        // Alert::success('Success Title', 'Success Message');
         return view('login');
     }
 
@@ -26,9 +26,7 @@ class IndexController extends Controller
 
     public function index()
     {
-        if (Auth::user()) {
-            return redirect('index')->with('pesan','test');
-        }
+        Alert::success('Success Title', 'Success Message');
         return view('dashboard');
     }
 

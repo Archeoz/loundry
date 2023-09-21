@@ -27,7 +27,7 @@
                                     <select class="form-control form-control-select" name="outlet" id="exampleSelect" placeholder="Select Option" style="border-radius: 20px;height:50px;">
                                         <option value="" disabled selected>Outlet</option>
                                         @foreach ( $outlet as $row )
-                                            <option @if($row->id_outlet == $user->id_outlet) selected @endif value="{{ $row->id_outlet }}">{{ $row->nama_outlet }}</option>
+                                            <option selected{{ $row->id_outlet == $user->id_outlet }} value="{{ $row->id_outlet }}">{{ $row->nama_outlet }}</option>
                                         @endforeach
                                     </select>
                                 </div>
