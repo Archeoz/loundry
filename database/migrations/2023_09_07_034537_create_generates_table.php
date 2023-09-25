@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('generates', function (Blueprint $table) {
             $table->increments('id_generate');
             $table->integer('id_transaksi');
+            $table->integer('kode_invoice')->nullable();
             $table->string('username_user');
             $table->string('member');
             $table->string('outlet');

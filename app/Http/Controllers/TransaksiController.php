@@ -143,6 +143,7 @@ class TransaksiController extends Controller
 
     public function registerpage()
     {
+        // session()->forget('pilihan');
         $user = Auth::user();
         $member = Member::all();
 
@@ -167,6 +168,7 @@ class TransaksiController extends Controller
         $user = Auth::user();
         $number = 0;
         $pajak = 0.11;
+        $kode = date('YmdHis');
 
         // $ya = $request->diskon;
         $total = $request->totalan;
@@ -185,6 +187,7 @@ class TransaksiController extends Controller
                 'id_outlet' => $request->outlet,
                 'id_member' => $request->member,
                 'id_user' => $user->id,
+                'kode_invoice' => $kode,
                 'tgl' => now(),
                 'batas_waktu' => null,
                 'tgl_bayar' =>now(),
@@ -199,6 +202,7 @@ class TransaksiController extends Controller
                 'id_outlet' => $request->outlet,
                 'id_member' => $request->member,
                 'id_user' => $user->id,
+                'kode_invoice' => $kode,
                 'tgl' => now(),
                 'batas_waktu' => $batasWaktu,
                 'tgl_bayar' =>null,
@@ -272,31 +276,47 @@ class TransaksiController extends Controller
             $orderdetailcreate = [
                 'id_transaksi' => $transaksi->id_transaksi,
                 'id_paket' => $value['id_paket'],
-                'jumlah_paket' => $sesipilihan['jumlah'],
+                'jumlah_paket' => $value['jumlah'],
                 'total_harga_paket' => $sesipilihan['jumlah'] * $sesipilihan['harga'],
                 'qty' => $totals,
                 'keterangan' => $request->keterangan,
             ];
-            // dd($orderdetailcreate);
             DetailTransaksi::create($orderdetailcreate);
 
             // dd($value);
         }
+        // dd($orderdetailcreate);
+        session()->forget('pilihan');
         session()->forget('pilihan');
         return redirect('laundry/transaksi');
     }
 
+    public function struk(){
+        $auth = Auth::user();
+        $outlet = Outlet::where('id_outlet',$auth->id_outlet)->first();
+        // dd($outlet);
+        $transaksi = Transaksi::latest()->first();
+        $member = Member::where('id_member',$transaksi->id_member)->first();
+        // dd($transaksi);
+
+        $struk = DetailTransaksi::join('transaksis','transaksis.id_transaksi','=','detail_transaksis.id_transaksi')
+        ->join('pakets','pakets.id_paket','=','detail_transaksis.id_paket')
+        ->where('transaksis.id_transaksi',$transaksi->id_transaksi)
+        ->select('detail_transaksis.*','pakets.*','transaksis.*')->get();
+        // dd($struk);
+        return view('struk',compact('struk','outlet','transaksi','member'));
+
+    }
     /**
      * Display the specified resource.
      */
     public function tampilupdate(Request $request,$id_transaksi)
     {
-        // return $id_transaksi;
         $transaksi = Transaksi::where('id_transaksi', $id_transaksi)->first();
-        $namapelanggan = Transaksi::join('members','members.id_member','=','transaksi.id_member')
-        ->select('member.*','transaksi.*');
+        $detailtransaksi = DetailTransaksi::where('id_transaksi',$id_transaksi)->first();
+        $namapelanggan = Member::where('id_member','=',$transaksi->id_member)->first();
         // dd($namapelanggan);
-        return view('transaksi.edit',compact('transaksi','namapelanggan'));
+        return view('transaksi.edit',compact('transaksi','namapelanggan','detailtransaksi'));
     }
 
     /**
@@ -305,17 +325,18 @@ class TransaksiController extends Controller
     public function updatetransaksi(Request $request,$id_transaksi)
     {
         $user = Auth::user();
+        $total = $request->total;
 
         // if ($user->role == 'admin') {
-            if ($request->statusbayar == 'dibayar') {
+            if ($request->bayar >= $total) {
                 Transaksi::where('id_transaksi',$id_transaksi)->update([
-                    'dibayar' => $request->statusbayar,
+                    'dibayar' => 'dibayar',
                     'status' => $request->status,
                     'tgl_bayar' => now(),
                 ]);
-            } elseif($request->statusbayar == 'belum_dibayar') {
+            } else{
                 Transaksi::where('id_transaksi',$id_transaksi)->update([
-                    'dibayar' => $request->statusbayar,
+                    'dibayar' => 'belum_dibayar',
                     'status' => $request->status,
                     'tgl_bayar' => null,
                 ]);

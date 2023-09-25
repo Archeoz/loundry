@@ -15,12 +15,13 @@ return new class extends Migration
             $table->increments('id_transaksi');
             $table->unsignedBigInteger('id_user');
             $table->foreign('id_user')->references('id')->on('users');
-            $table->integer('id_outlet');
+            $table->integer('id_outlet')->nullable();
             $table->integer('id_member');
+            $table->unsignedBigInteger('kode_invoice');
             $table->dateTime('tgl');
             $table->dateTime('batas_waktu');
-            $table->dateTime('tgl_bayar');
-            $table->integer('biaya_tambahan');
+            $table->dateTime('tgl_bayar')->nullable();
+            $table->integer('biaya_tambahan')->nullable();
             $table->double('diskon');
             $table->integer('pajak');
             $table->enum('status',['baru','proses','selesai','diambil'])->default('baru');

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->increments('id_member');
-            $table->string('nama');
+            $table->string('nama_member');
             $table->string('alamat');
             $table->enum('jeniskelamin',['L','P']);
             $table->string('telp');

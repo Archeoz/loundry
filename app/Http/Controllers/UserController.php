@@ -16,7 +16,7 @@ class UserController extends Controller
         $user = User::join('outlets','users.id_outlet','=','outlets.id_outlet')
         // ->select(['outlets.*','users.nama','users.username','users.role','users.email','users.id',])->get();
         ->select(['outlets.*','users.*'])->get();
-
+        // return $user;
 
         return view('user.data',compact('user'));
     }

@@ -22,9 +22,9 @@ use App\Models\Transaksi;
 |
 */
 
-// Route::get('/', function () {
-//     return view('login');
-// });
+Route::get('struk', function () {
+    return view('struk');
+});
 Route::get('/',[IndexController::class,'login']);
 
 // Route::get('dashboard',[IndexController::class,'dashboard']);
@@ -38,6 +38,8 @@ Route::get('registerpelanggan',[MemberController::class,'index']);
 Route::get('index',[AuthController::class,'index']);
 
 Route::group(['prefix' => 'laundry','middleware' => ['auth'] ],function(){
+
+    Route::get('tampilstruk',[TransaksiController::class,'struk']);
 
     Route::group(['middleware' => ['CekLogin:admin']],function() {
         //user

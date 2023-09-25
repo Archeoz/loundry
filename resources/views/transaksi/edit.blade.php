@@ -2,15 +2,19 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <h1 class="h4 text-gray-900 mb-4">ID Transaksi : {{ $transaksi->id_transaksi }}</h1>
-        {{-- <h1 class="h4 text-gray-900 mb-4">Nama Pelanggan : {{ $namapelanggan->nama_member }}</h1> --}}
+        <div class="col-7">
+            <h1 class="h4 text-gray mb-2">ID Transaksi : <strong>{{ $transaksi->kode_invoice }}</strong></h1>
+        </div>
+        <div class="col-7">
+            <h1 class="h4 text-grey mb-4">Nama Pelanggan : <strong>{{ $namapelanggan->nama_member }}</strong> </h1>
+        </div>
     </div>
     <div class="card o-hidden border-0 shadow-lg">
         <div class="card-body p-0">
             <!-- Nested Row within Card Body -->
             <div class="row justify-content-center">
 
-                <div class="col-lg-7">
+                <div class="col-lg-8">
                     <div class="p-5">
                         <div class="text-center">
                             <h1 class="h4 text-gray-900 mb-4">Edit Data Transaksi</h1>
@@ -18,18 +22,26 @@
                         <form class="user" action="{{ url('laundry/updatetransaksi/'.$transaksi->id_transaksi) }}" enctype="multipart/form-data" method="POST">
                             @csrf
                             <div class="row">
-                                <div class="col-md-6 form-group">
-                                    <div class="col-md-">
-                                        <label for="">Status Bayar : </label>
+                                @if ($transaksi->dibayar == 'dibayar')
+                                    <div class="col-md-6 form-group ">
+                                        <h3 class="mt-3" style="text-align: center">Sudah Bayar</h3>
                                     </div>
+                                @else
+                                <div class="col-md-6 form-group">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <label for="">Bayar : </label>
+                                            </div>
+                                            <div class="col-6">
+                                                <h4 style="font-size: 20px" >Rp. {{ $detailtransaksi->qty }}</h4>
+                                                <input type="hidden" name="total" id="total" value="{{ $detailtransaksi->qty }}">
+                                            </div>
+                                        </div>
                                     <div class="mb-3 mb-sm-0">
-                                        <select class="form-control form-control-select" name="statusbayar" id="exampleSelect" placeholder="Select Option" style="border-radius: 20px;height:50px;">
-                                            <option value="{{ $transaksi->dibayar }}" selected>{{ $transaksi->dibayar }}</option>
-                                            <option value="dibayar">Di Bayar</option>
-                                            <option value="belum_dibayar">Belum Dibayar</option>
-                                        </select>
+                                        <input class="form-control" type="number" style="border-radius: 20px;height:50px;" id="bayar" name="bayar" onkeyup="hitungkembali();">
                                     </div>
                                 </div>
+                                @endif
                                 <div class="col-md-6 form-group">
                                     <div class="col-md-7">
                                         <label for="">Status : </label>
@@ -45,9 +57,18 @@
                                     </div>
                                 </div>
                             </div>
-                            <a class="btn btn-primary btn-user btn-block" data-toggle="modal" data-target="#update">
-                                Update Transaksi
-                            </a>
+                            <div class="row">
+                                <div class="col-6">
+                                    <a class="btn btn-danger btn-user btn-block" href="{{ url('laundry/transaksi') }}">
+                                        batal Update
+                                    </a>
+                                </div>
+                                <div class="col-6">
+                                    <a class="btn btn-primary btn-user btn-block" data-toggle="modal" data-target="#update">
+                                        Update Transaksi
+                                    </a>
+                                </div>
+                            </div>
                             <div class="modal fade" id="update" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
                                 aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -67,9 +88,37 @@
                             </div>
                         </form>
                     </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Kembali : </label>
+                            <div class="mb-3">
+                                <span class="form-control" type="text" id="tampilkembali"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    function hitungkembali(){
+        var total = parseFloat(document.getElementById('total').value);
+        var bayar = parseFloat(document.getElementById('bayar').value) || 0;
+
+        if (bayar === 0) {
+            kembali = 0;
+        } else {
+            var kembali = bayar - total;
+        }
+
+        var tampiltotal = document.getElementById('tampilkembali');
+        tampiltotal.textContent = 'Rp. ' + Math.ceil(kembali);
+
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+        hitungkembali();
+    });
+    document.getElementById('bayar').addEventListener("input", hitungkembali);
+</script>
 @endsection

@@ -21,7 +21,7 @@
                                     <select class="form-control form-select" name="paket" id="" style="border-radius: 15px;height:40px;">
                                         <option value="" disabled selected>---Pilih Paket---</option>
                                         @foreach ($paket as $paket)
-                                        <option value="{{ $paket->id_paket }}">{{ $paket->nama_paket }} --- Outlet : {{ $paket->nama_outlet }}</span></option>
+                                        <option value="{{ $paket->id_paket }}">{{ $paket->nama_paket }}</span></option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -207,8 +207,9 @@
                                         <label for="">Keterangan : </label>
                                     </div>
                                     <div class="mb-3 mb-sm-0">
-                                        <input type="text" class="form-control form-control-user" id="exampleFirstName"  name="keterangan"
-                                            placeholder="Insert Keterangan">
+                                        {{-- <input type="text" class="form-control form-control-user" id="exampleFirstName"  name="keterangan"
+                                            placeholder="Insert Keterangan"> --}}
+                                        <textarea class="form-control" style="height: 50px; border-radius: 20px;line-height: 35px" name="keterangan" id=""  placeholder="Insert Keterangan"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -234,13 +235,12 @@
 
                                     </div>
                                     <div class="col-md-6">
-                                        <a class="btn btn-primary btn-user btn-block" data-toggle="modal" data-target="#registermember ">
+                                        <button class="btn btn-primary btn-user btn-block" type="submit" id="btn">
                                             Register Transaksi
-                                        </a>
-
+                                        </button>
                                     </div>
                                 </div>
-                                <div class="modal fade" id="registermember" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                {{-- <div class="modal fade" id="registermember" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
                                     aria-hidden="true">
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
@@ -256,7 +256,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                         </form>
                     </div>
                 </div>
@@ -335,6 +335,12 @@
     document.getElementById('biayatambahan').addEventListener("input", hitung);
     document.getElementById('diskon').addEventListener("input", hitung);
     document.getElementById('bayarnow').addEventListener("input", hitung);
+
+    var btn = document.getElementById('btn');
+    btn.addEventListener('click', function() {
+        var link = "{{ url('laundry/tampilstruk') }}";
+        window.open(link, '_blank');
+    });
 </script>
 {{-- <script>
     var total = 0; // Inisialisasi total

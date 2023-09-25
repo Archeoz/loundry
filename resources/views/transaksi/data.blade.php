@@ -18,6 +18,7 @@
                         <tr>
                             <th>No</th>
                             <th>Id Transaksi</th>
+                            <th>Kode Invoice</th>
                             <th>Pegawai</th>
                             <th>Member</th>
                             <th>Outlet</th>
@@ -42,6 +43,7 @@
                         <tr>
                             <td>{{ $no++ }}.</td>
                             <td>{{ $transaksis->id_transaksi }}</td>
+                            <td>{{ $transaksis->kode_invoice }}</td>
                             <td>{{ $transaksis->username }}</td>
                             <td>{{ $transaksis->nama_member }}</td>
                             <td>{{ $transaksis->nama_outlet }}</td>
@@ -95,7 +97,6 @@
                                 <a href="" data-toggle="modal" data-target="#deletemember{{ $transaksis->id_transaksi }}"  class="ml-2 text-danger"><i class="fas fa-trash"></i></a>
                             </td>
                         </tr>
-                        @endforeach
                         <div class="modal fade" id="deletemember{{ $transaksis->id_transaksi }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
                                 aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -113,6 +114,8 @@
                                     </div>
                                 </div>
                         </div>
+                        @endforeach
+
                     </tbody>
                 </table>
             </div>
