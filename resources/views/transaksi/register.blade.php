@@ -226,7 +226,7 @@
                                 <div class="col-6">
                                     <label>Kembali : </label>
                                     <div class="mb-3">
-                                        <span class="form-control" type="text" id="tampilkembali"></span>
+                                        <span class="form-control" type="text" id="tampilkembali" ></span>
                                     </div>
                                 </div>
                             </div>

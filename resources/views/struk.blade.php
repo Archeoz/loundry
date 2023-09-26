@@ -155,6 +155,9 @@
                     @if ($struk->dibayar == 'belum_dibayar')
                         <li>Tgl Tenggat</li>
                     @endif
+                    @if ($struk->dibayar == 'dibayar')
+                        <li>Kembali</li>
+                    @endif
                     <li>Keterangan</li>
                 </ul>
             </div>
@@ -168,6 +171,9 @@
                     @endif
                     @if ($struk->dibayar == 'belum_dibayar')
                         <li>{{ substr($struk->batas_waktu,0 ,10) }}</li>
+                    @endif
+                    @if ($struk->dibayar == 'dibayar')
+                    <li>{{ $struk->kembali }}</li>
                     @endif
                     <li>{{ $struk->keterangan }}</li>
                 </ul>

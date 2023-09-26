@@ -171,6 +171,7 @@ class TransaksiController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request);
         $user = Auth::user();
         $number = 0;
         $pajak = 0.11;
@@ -182,8 +183,9 @@ class TransaksiController extends Controller
         $costtambahan = $total + $request->biayatambahan - $didiskon;
         $totalpajak = $costtambahan * $pajak;
         $totals = $number + $costtambahan + $totalpajak;
+        $kembali = $request->bayarnow - $totals;
 
-        // return $totals;
+        // dd($kembali);
 
         // Menghitung tanggal batas waktu 4 hari ke depan
         $batasWaktu = Carbon::now()->addDays(4);
@@ -200,6 +202,7 @@ class TransaksiController extends Controller
                 'biaya_tambahan' => $request->biayatambahan,
                 'diskon' => $request->diskon,
                 'pajak' => $totalpajak,
+                'kembali' => $kembali,
                 'status' => "baru",
                 'dibayar' => "dibayar",
             ];
@@ -215,6 +218,7 @@ class TransaksiController extends Controller
                 'biaya_tambahan' => $request->biayatambahan,
                 'diskon' => $request->diskon,
                 'pajak' => $totalpajak,
+                'kembali' => $kembali,
                 'status' => "baru",
                 'dibayar' => "belum_dibayar",
             ];
