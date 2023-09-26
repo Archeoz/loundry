@@ -109,6 +109,12 @@ class TransaksiController extends Controller
         return back();
     }
 
+    public function hapussemua()
+    {
+        session()->forget('pilihan');
+        return back();
+    }
+
     public function batal()
     {
         session()->forget('pilihan');
@@ -281,14 +287,19 @@ class TransaksiController extends Controller
                 'qty' => $totals,
                 'keterangan' => $request->keterangan,
             ];
-            DetailTransaksi::create($orderdetailcreate);
+            $detail =  DetailTransaksi::create($orderdetailcreate);
 
             // dd($value);
         }
         // dd($orderdetailcreate);
-        session()->forget('pilihan');
-        session()->forget('pilihan');
-        return redirect('laundry/transaksi');
+        if ($detail) {
+            session()->forget('pilihan');
+            return redirect('laundry/transaksi');
+        } else {
+            return "gagal simpan";
+        }
+
+
     }
 
     public function struk(){

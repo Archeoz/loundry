@@ -14,8 +14,11 @@
                         </div>
                         <form action="{{ url('laundry/belipaket') }}" method="GET">
                             <div class="row mb-6">
-                                <div class="col-md-8 mb-2">
+                                <div class="col-md-10 mb-2">
                                     <span>Pilih Paket</span>
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <a href="{{ url('laundry/hapussemua') }}" class="text-danger font-weight-bold"><i class="fa fa-trash"></i> Hapus Semua</a>
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <select class="form-control form-select" name="paket" id="" style="border-radius: 15px;height:40px;">

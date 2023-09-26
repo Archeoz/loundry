@@ -152,12 +152,23 @@
             <div>
                 <ul>
                     <li>Status Bayar</li>
+                    @if ($struk->dibayar == 'belum_dibayar')
+                        <li>Tgl Tenggat</li>
+                    @endif
                     <li>Keterangan</li>
                 </ul>
             </div>
             <div style="text-align: right">
                 <ul>
-                    <li>{{ $struk->dibayar }}</li>
+                    @if ($struk->dibayar == 'dibayar')
+                    <li>Sudah Dibayar</li>
+                    @endif
+                    @if ($struk->dibayar == 'belum_dibayar')
+                    <li>Belum Dibayar</li>
+                    @endif
+                    @if ($struk->dibayar == 'belum_dibayar')
+                        <li>{{ substr($struk->batas_waktu,0 ,10) }}</li>
+                    @endif
                     <li>{{ $struk->keterangan }}</li>
                 </ul>
             </div>

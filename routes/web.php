@@ -88,6 +88,7 @@ Route::group(['prefix' => 'laundry','middleware' => ['auth'] ],function(){
         Route::get('kurang/{id_paket}',[TransaksiController::class,'kurang']);
         Route::get('hapuspilihan/{id_paket}',[TransaksiController::class,'hapus']);
         Route::get('batal',[TransaksiController::class,'batal']);
+        Route::get('hapussemua',[TransaksiController::class,'hapussemua']);
 
         //generate laporan
         Route::get('generate',[GenerateController::class,'index']);
@@ -110,7 +111,7 @@ Route::group(['prefix' => 'laundry','middleware' => ['auth'] ],function(){
        Route::get('kurang/{id_paket}',[TransaksiController::class,'kurang']);
        Route::get('hapuspilihan/{id_paket}',[TransaksiController::class,'hapus']);
        Route::get('batal',[TransaksiController::class,'batal']);
-
+       Route::get('hapussemua',[TransaksiController::class,'hapussemua']);
 
         //generate laporan
         Route::get('generate',[GenerateController::class,'index']);
