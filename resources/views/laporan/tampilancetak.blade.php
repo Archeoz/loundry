@@ -7,11 +7,13 @@
     <title></title>
     <style>
         /* CSS untuk menggaya tabel */
+
+
         table {
             font-family: Arial, sans-serif;
             border-collapse: collapse;
             width: 80%;
-            margin: 20px auto;
+
         }
 
         th, td {
@@ -39,16 +41,16 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Id Transaksi</th>
+                    <th>Kode Invoice</th>
                     <th>Pegawai</th>
                     <th>Member</th>
                     <th>Outlet</th>
                     <th>Paket</th>
-                    <th>Total Harga Paket</th>
                     <th>Total</th>
                     <th>Tgl Masuk</th>
                     <th>Batas Waktu</th>
                     <th>Tgl Bayar</th>
+                    <th>Sisa Hutang</th>
                     <th>Keterangan</th>
                     <th>Status Pembayaran</th>
                     <th>Status</th>
@@ -61,12 +63,11 @@
                 @foreach ( $generate as $generate )
                 <tr>
                     <td>{{ $no++ }}.</td>
-                    <td>{{ $generate->id_transaksi }}</td>
+                    <td>{{ $generate->kode_invoice }}</td>
                     <td>{{ $generate->username_user }}</td>
                     <td>{{ $generate->member }}</td>
                     <td>{{ $generate->outlet }}</td>
                     <td>{{ $generate->paket }}</td>
-                    <td>{{ $generate->total_harga_paket }}</td>
                     {{-- <td>
                         @foreach (explode('.',$generate->nama_paket) as $item)
                             {{ $item }}
@@ -77,10 +78,12 @@
                             {{ $item->nama_paket }}
                         @endforeach
                     </td> --}}
-                    <td>{{ $genera  te->total }}</td>
+                    <td>{{ $generate->total }}</td>
                     <td>{{ $generate->tgl_masuk }}</td>
                     <td>{{ $generate->batas_waktu_bayar }}</td>
                     <td>{{ $generate->tgl_bayar }}</td>
+                    <td>{{ $generate->sisa_hutang }}</td>
+                    <td>{{ $generate->keterangan }}</td>
                     <td>{{ $generate->status_pembayaran }}</td>
                     <td>{{ $generate->status }}</td>
 

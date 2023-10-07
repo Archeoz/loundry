@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('id_paket');
             $table->integer('jumlah_paket');
             $table->unsignedBigInteger('total_harga_paket');
+            $table->unsignedBigInteger('sisa_hutang')->nullable();
             $table->double('qty');
             $table->string('keterangan');
             $table->timestamps();

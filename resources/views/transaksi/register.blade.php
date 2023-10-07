@@ -32,7 +32,7 @@
                                     <input type="number" class="form-control form-control-user" style="border-radius: 15px;height:40px;" name="jumlah" placeholder="--- Isikan Jumlah Paket ---">
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-3 ml-3 mb-2">
+                                    <div class="col-md ml-3 mb-2">
                                         <button class="btn btn-primary" type="submit">Submit</button>
                                     </div>
                                 </div>

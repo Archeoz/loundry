@@ -24,12 +24,14 @@ class GenerateController extends Controller
         foreach ($generate as $generate) {
            $generatemodel = Generate::firstOrNew([
                 'id_transaksi' =>$generate->id_transaksi ,
+                'kode_invoice' =>$generate->kode_invoice ,
                 'username_user' =>$generate->username ,
                 'member' =>$generate->nama_member ,
                 'outlet' =>$generate->nama_outlet ,
                 'paket' =>$generate->nama_paket ,
-                'total_harga_paket' =>$generate->totalan ,
+                'total_harga_paket' =>$generate->total_harga_paket ,
                 'total' =>$generate->qty ,
+                'sisa_hutang' =>$generate->sisa_hutang ,
                 'tgl_masuk' =>$generate->tgl ,
                 'batas_waktu_bayar' =>$generate->batas_waktu ,
                 'tgl_bayar' =>$generate->tgl_bayar ,

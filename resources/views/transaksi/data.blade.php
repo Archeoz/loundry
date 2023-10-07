@@ -11,9 +11,40 @@
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">List Transaksi</h6>
         </div>
+
         <div class="card-body">
+            <form class="user mb-3" action="{{ url('laundry/filtertanggal') }}" method="get">
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="">Tanggal Awal</label>
+                        <input class="form-control" type="date" id="tanggalawal" name="tanggalawal" >
+                    </div>
+                    <div class="col-md-3">
+                        <label for="">Tanggal Akhir</label>
+                        <input class="form-control" type="date" id="tanggalakhir" name="tanggalakhir">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="">Status Bayar</label>
+                        <select name="status_bayar" class="form-control form-select" id="">
+                            <option value="" disabled selected>=Pilih Status=</option>
+                            <option value="hutang">Hutang</option>
+                            <option value="dibayar">Di Bayar</option>
+                            <option value="belum_dibayar">Belum Dibayar</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 pt-4 mt-2">
+                        <div class="row">
+                            <button type="submit" class="btn btn-primary">Cari</button>
+                            <a href="{{ url('laundry/transaksi') }}" class="btn btn-warning ml-2">Reset Filter</a>
+                        </div>
+                    </div>
+                    <div class="col-md-2 pt-2">
+                    </div>
+                </div>
+            </form>
             <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered" id="dataTable"  width="100%" cellspacing="0">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -29,6 +60,7 @@
                             <th>Tgl Masuk</th>
                             <th>Batas Waktu</th>
                             <th>Tgl Bayar</th>
+                            <th>Sisa Hutang</th>
                             <th>Keterangan</th>
                             <th>Status Pembayaran</th>
                             <th>Status</th>
@@ -64,6 +96,7 @@
                             <td>{{ $transaksis->tgl }}</td>
                             <td>{{ $transaksis->batas_waktu }}</td>
                             <td>{{ $transaksis->tgl_bayar }}</td>
+                            <td>{{ $transaksis->sisa_hutang }}</td>
                             <td>{{ $transaksis->keterangan }}</td>
                             @if ($transaksis->dibayar == 'dibayar')
                                 <td>
@@ -71,6 +104,10 @@
                                 </td>
 
                             @elseif ($transaksis->dibayar == 'belum_dibayar')
+                                <td>
+                                    <a href="{{ url('laundry/updatetransaksipage/'.$transaksis->id_transaksi) }}" class="btn btn-warning">{{ $transaksis->dibayar }}</a>
+                                </td>
+                            @elseif ($transaksis->dibayar == 'hutang')
                                 <td>
                                     <a href="{{ url('laundry/updatetransaksipage/'.$transaksis->id_transaksi) }}" class="btn btn-warning">{{ $transaksis->dibayar }}</a>
                                 </td>
@@ -122,5 +159,38 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+    // Capture date input changes
+    $('#tanggalawal, #tanggalakhir').on('input', function () {
+        // Get the selected dates
+        var startDate = $('#tanggalawal').val();
+        var endDate = $('#tanggalakhir').val();
+
+        // Perform an AJAX request to fetch filtered data
+        $.ajax({
+            url: "{{ url('laundry/filtertanggal') }}",
+            method: "GET",
+            data: {
+                tanggalawal: startDate,
+                tanggalakhir: endDate
+            },
+            success: function (data) {
+                // Update the content of the "filteredData" container
+                $('#filteredData').html(data);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+
+    // Initial load to display data based on default date inputs (if needed)
+    // Trigger the input event to load data based on default date inputs
+    $('#tanggalawal, #tanggalakhir').trigger('input');
+});
+
+</script>
 <!-- /.container-fluid -->
 @endsection

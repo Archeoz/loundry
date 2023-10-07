@@ -23,13 +23,15 @@ use App\Models\Transaksi;
 */
 
 Route::get('struk', function () {
-    return view('struk');
+    return view('laporan.tampilancetak');
 });
 Route::get('/',[IndexController::class,'login']);
 
 // Route::get('dashboard',[IndexController::class,'dashboard']);
 Route::post('postlogin',[AuthController::class,'postlogin']);
 Route::get('logout',[AuthController::class,'logout']);
+
+
 
 // Pelanggan
 Route::get('registerpelanggan',[MemberController::class,'index']);
@@ -38,6 +40,8 @@ Route::get('registerpelanggan',[MemberController::class,'index']);
 Route::get('index',[AuthController::class,'index']);
 
 Route::group(['prefix' => 'laundry','middleware' => ['auth'] ],function(){
+    //filter tanggal transaksi
+    Route::get('filtertanggal',[TransaksiController::class,'filter']);
 
     Route::get('tampilstruk',[TransaksiController::class,'struk']);
 

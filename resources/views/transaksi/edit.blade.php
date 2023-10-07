@@ -30,12 +30,24 @@
                                 <div class="col-md-6 form-group">
                                         <div class="row">
                                             <div class="col-6">
-                                                <label for="">Bayar : </label>
+                                                @if ($transaksi->dibayar == 'belum_dibayar')
+                                                <label>Total : </label>
+                                                @elseif ($transaksi->dibayar == 'hutang')
+                                                <label>Hutang : </label>
+                                                @endif
                                             </div>
-                                            <div class="col-6">
-                                                <h4 style="font-size: 20px" >Rp. {{ $detailtransaksi->qty }}</h4>
-                                                <input type="hidden" name="total" id="total" value="{{ $detailtransaksi->qty }}">
-                                            </div>
+                                            <input type="hidden" name="" id="status" value="{{ $transaksi->dibayar }}">
+                                            @if ($transaksi->dibayar == 'belum_dibayar')
+                                                <div class="col-6">
+                                                    <h4 style="font-size: 20px" >Rp. {{ $detailtransaksi->qty }}</h4>
+                                                    <input type="hidden" name="total" id="total" value="{{ $detailtransaksi->qty }}">
+                                                </div>
+                                            @elseif ($transaksi->dibayar == 'hutang')
+                                                <div class="col-6">
+                                                    <h4 style="font-size: 20px" >Rp. {{ $detailtransaksi->sisa_hutang }}</h4>
+                                                    <input type="hidden" name="total" id="total" value="{{ $detailtransaksi->sisa_hutang }}">
+                                                </div>
+                                            @endif
                                         </div>
                                     <div class="mb-3 mb-sm-0">
                                         <input class="form-control" type="number" style="border-radius: 20px;height:50px;" id="bayar" name="bayar" onkeyup="hitungkembali();">
@@ -90,7 +102,11 @@
                     </div>
                     <div class="row">
                         <div class="col-6">
+                            @if ($transaksi->dibayar == 'belum_dibayar')
                             <label>Kembali : </label>
+                            @elseif ($transaksi->dibayar == 'hutang')
+                            <label>Sisa Hutang : </label>
+                            @endif
                             <div class="mb-3">
                                 <span class="form-control" type="text" id="tampilkembali"></span>
                             </div>
@@ -103,13 +119,21 @@
 </div>
 <script>
     function hitungkembali(){
-        var total = parseFloat(document.getElementById('total').value);
-        var bayar = parseFloat(document.getElementById('bayar').value) || 0;
+        var status = document.getElementById('status').value;
 
+        var total = parseFloat(document.getElementById('total').value);
+        // var hutang = parseFloat(document.getElementById('hutang').value);
+        var bayar = parseFloat(document.getElementById('bayar').value) || 0;
+        // var jadiplus = hutang - hutang;
         if (bayar === 0) {
-            kembali = 0;
+            var kembali = 0;
         } else {
-            var kembali = bayar - total;
+            if (status === 'hutang') {
+                var kembali = bayar + total;
+        } else {
+                var kembali = bayar - total;
+        }
+
         }
 
         var tampiltotal = document.getElementById('tampilkembali');

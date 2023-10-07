@@ -12,6 +12,7 @@ use App\Models\DetailTransaksi;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreTransaksiRequest;
 use App\Http\Requests\UpdateTransaksiRequest;
+use Illuminate\Support\Facades\DB;
 
 class TransaksiController extends Controller
 {
@@ -31,7 +32,7 @@ class TransaksiController extends Controller
             // dd($paket);
             $pilihan = session()->get('pilihan',[]);
             if (isset($pilihan[$id_insert])) {
-                $pilihan[$id_insert]['jumlah']+5;
+                $pilihan[$id_insert]['jumlah']++;
             }else{
                 $pilihan[$id_insert] = [
                     'id_paket' => $id_insert,
@@ -124,12 +125,16 @@ class TransaksiController extends Controller
 
     public function index()
     {
+        $user = Auth::user();
         $transaksi = DetailTransaksi::join('transaksis','transaksis.id_transaksi','=','detail_transaksis.id_transaksi')
         ->join('users','users.id','=','transaksis.id_user')
         ->join('pakets','pakets.id_paket','=','detail_transaksis.id_paket')
         ->join('members','members.id_member','=','transaksis.id_member')
         ->join('outlets','outlets.id_outlet','=','transaksis.id_outlet')
-        ->select('users.*','members.*','outlets.*','detail_transaksis.*','pakets.*','transaksis.*')->get();
+        ->select('users.*','members.*','outlets.*','detail_transaksis.*','pakets.*','transaksis.*')
+        ->where('transaksis.id_outlet', $user->id_outlet)
+        ->orderByRaw("FIELD(transaksis.dibayar, 'hutang','belum_dibayar','dibayar')")
+        ->get();
 
         // return $transaksi;
         return view('transaksi.data',compact('transaksi'));
@@ -184,6 +189,7 @@ class TransaksiController extends Controller
         $totalpajak = $costtambahan * $pajak;
         $totals = $number + $costtambahan + $totalpajak;
         $kembali = $request->bayarnow - $totals;
+        // $kembali = abs($kembalis);
 
         // dd($kembali);
 
@@ -191,37 +197,113 @@ class TransaksiController extends Controller
         $batasWaktu = Carbon::now()->addDays(4);
         //lihat sudah bayar atau belum
         if ($request->bayarnow >= $total) {
-            $buat = [
-                'id_outlet' => $request->outlet,
-                'id_member' => $request->member,
-                'id_user' => $user->id,
-                'kode_invoice' => $kode,
-                'tgl' => now(),
-                'batas_waktu' => null,
-                'tgl_bayar' =>now(),
-                'biaya_tambahan' => $request->biayatambahan,
-                'diskon' => $request->diskon,
-                'pajak' => $totalpajak,
-                'kembali' => $kembali,
-                'status' => "baru",
-                'dibayar' => "dibayar",
-            ];
+            if (isset($request->bayarnow)) {
+                $buat = [
+                    'id_outlet' => $request->outlet,
+                    'id_member' => $request->member,
+                    'id_user' => $user->id,
+                    'kode_invoice' => $kode,
+                    'tgl' => now(),
+                    'batas_waktu' => null,
+                    'tgl_bayar' =>now(),
+                    'biaya_tambahan' => $request->biayatambahan,
+                    'diskon' => $request->diskon,
+                    'bayarnow' => $request->bayarnow,
+                    'pajak' => $totalpajak,
+                    'kembali' => $kembali,
+                    'status' => "baru",
+                    'dibayar' => "dibayar",
+                ];
+            } else {
+                $buat = [
+                    'id_outlet' => $request->outlet,
+                    'id_member' => $request->member,
+                    'id_user' => $user->id,
+                    'kode_invoice' => $kode,
+                    'tgl' => now(),
+                    'batas_waktu' => null,
+                    'tgl_bayar' =>now(),
+                    'biaya_tambahan' => $request->biayatambahan,
+                    'diskon' => $request->diskon,
+                    'pajak' => $totalpajak,
+                    'kembali' => $kembali,
+                    'status' => "baru",
+                    'dibayar' => "dibayar",
+                ];
+            }
         } else if($request->bayarnow < $total) {
-            $buat = [
-                'id_outlet' => $request->outlet,
-                'id_member' => $request->member,
-                'id_user' => $user->id,
-                'kode_invoice' => $kode,
-                'tgl' => now(),
-                'batas_waktu' => $batasWaktu,
-                'tgl_bayar' =>null,
-                'biaya_tambahan' => $request->biayatambahan,
-                'diskon' => $request->diskon,
-                'pajak' => $totalpajak,
-                'kembali' => $kembali,
-                'status' => "baru",
-                'dibayar' => "belum_dibayar",
-            ];
+            if (isset($request->bayarnow)) {
+                $buat = [
+                    'id_outlet' => $request->outlet,
+                    'id_member' => $request->member,
+                    'id_user' => $user->id,
+                    'kode_invoice' => $kode,
+                    'tgl' => now(),
+                    'batas_waktu' => $batasWaktu,
+                    'tgl_bayar' =>null,
+                    'biaya_tambahan' => $request->biayatambahan,
+                    'diskon' => $request->diskon,
+                    'bayarnow' => $request->bayarnow,
+                    'pajak' => $totalpajak,
+                    'kembali' => $kembali,
+                    'status' => "baru",
+                    'dibayar' => "hutang",
+                ];
+            } else {
+                $buat = [
+                    'id_outlet' => $request->outlet,
+                    'id_member' => $request->member,
+                    'id_user' => $user->id,
+                    'kode_invoice' => $kode,
+                    'tgl' => now(),
+                    'batas_waktu' => $batasWaktu,
+                    'tgl_bayar' =>null,
+                    'biaya_tambahan' => $request->biayatambahan,
+                    'diskon' => $request->diskon,
+                    'pajak' => $totalpajak,
+                    'kembali' => $kembali,
+                    'status' => "baru",
+                    'dibayar' => "hutang",
+                ];
+            }
+
+
+        } else if($request->bayarnow == null) {
+            if (isset($request->bayarnow)) {
+                $buat = [
+                    'id_outlet' => $request->outlet,
+                    'id_member' => $request->member,
+                    'id_user' => $user->id,
+                    'kode_invoice' => $kode,
+                    'tgl' => now(),
+                    'batas_waktu' => $batasWaktu,
+                    'tgl_bayar' =>null,
+                    'biaya_tambahan' => $request->biayatambahan,
+                    'diskon' => $request->diskon,
+                    'bayarnow' => $request->bayarnow,
+                    'pajak' => $totalpajak,
+                    'kembali' => $kembali,
+                    'status' => "baru",
+                    'dibayar' => "belum_dibayar",
+                ];
+            } else {
+                $buat = [
+                    'id_outlet' => $request->outlet,
+                    'id_member' => $request->member,
+                    'id_user' => $user->id,
+                    'kode_invoice' => $kode,
+                    'tgl' => now(),
+                    'batas_waktu' => $batasWaktu,
+                    'tgl_bayar' =>null,
+                    'biaya_tambahan' => $request->biayatambahan,
+                    'diskon' => $request->diskon,
+                    'pajak' => $totalpajak,
+                    'kembali' => $kembali,
+                    'status' => "baru",
+                    'dibayar' => "belum_dibayar",
+                ];
+            }
+
         }
         Transaksi::create($buat);
         // dd($buat);
@@ -282,15 +364,28 @@ class TransaksiController extends Controller
         // }
 
         foreach (session('pilihan') as $key => $value) {
-            // dd($transaksi);
-            $orderdetailcreate = [
-                'id_transaksi' => $transaksi->id_transaksi,
-                'id_paket' => $value['id_paket'],
-                'jumlah_paket' => $value['jumlah'],
-                'total_harga_paket' => $sesipilihan['jumlah'] * $sesipilihan['harga'],
-                'qty' => $totals,
-                'keterangan' => $request->keterangan,
-            ];
+
+            if ($transaksi->dibayar == 'hutang') {
+                $orderdetailcreate = [
+                    'id_transaksi' => $transaksi->id_transaksi,
+                    'id_paket' => $value['id_paket'],
+                    'jumlah_paket' => $value['jumlah'],
+                    'total_harga_paket' => $value['jumlah'] * $value['harga'],
+                    'qty' => $totals,
+                    'sisa_hutang' => $request->bayarnow - $totals,
+                    'keterangan' => $request->keterangan,
+                ];
+            } else {
+                $orderdetailcreate = [
+                    'id_transaksi' => $transaksi->id_transaksi,
+                    'id_paket' => $value['id_paket'],
+                    'jumlah_paket' => $value['jumlah'],
+                    'total_harga_paket' => $value['jumlah'] * $value['harga'],
+                    'qty' => $totals,
+                    'keterangan' => $request->keterangan,
+                ];
+            }
+            // dd($orderdetailcreate);
             $detail =  DetailTransaksi::create($orderdetailcreate);
 
             // dd($value);
@@ -302,6 +397,7 @@ class TransaksiController extends Controller
         } else {
             return "gagal simpan";
         }
+        // return redirect('laundry/transaksi');
 
 
     }
@@ -330,7 +426,7 @@ class TransaksiController extends Controller
         $transaksi = Transaksi::where('id_transaksi', $id_transaksi)->first();
         $detailtransaksi = DetailTransaksi::where('id_transaksi',$id_transaksi)->first();
         $namapelanggan = Member::where('id_member','=',$transaksi->id_member)->first();
-        // dd($namapelanggan);
+        // dd($detailtransaksi);
         return view('transaksi.edit',compact('transaksi','namapelanggan','detailtransaksi'));
     }
 
@@ -341,19 +437,30 @@ class TransaksiController extends Controller
     {
         $user = Auth::user();
         $total = $request->total;
+        $totals = abs($total);
+        $sisahutang = $totals - $request->bayar;
+        // dd($sisahutang);
 
         // if ($user->role == 'admin') {
-            if ($request->bayar >= $total) {
+            if ($request->bayar >= $totals) {
                 Transaksi::where('id_transaksi',$id_transaksi)->update([
                     'dibayar' => 'dibayar',
                     'status' => $request->status,
                     'tgl_bayar' => now(),
+                    'batas_waktu' => null,
                 ]);
+                DetailTransaksi::where('id_transaksi',$id_transaksi)->update([
+                    'sisa_hutang' => null,
+                ]);
+
             } else{
                 Transaksi::where('id_transaksi',$id_transaksi)->update([
-                    'dibayar' => 'belum_dibayar',
+                    'dibayar' => 'hutang',
                     'status' => $request->status,
                     'tgl_bayar' => null,
+                ]);
+                DetailTransaksi::where('id_transaksi',$id_transaksi)->update([
+                    'sisa_hutang' => -$sisahutang,
                 ]);
             }
 
@@ -367,9 +474,144 @@ class TransaksiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTransaksiRequest $request, Transaksi $transaksi)
+    public function filter(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     $startDate = $request->tanggalawal;
+    //     $endDate = $request->tanggalakhir;
+    //     $statusbayar = $request->status_bayar;
+
+    //     if (empty($startDate)) {
+    //         $tanggal = $endDate;
+    //     } elseif(empty($endDate)) {
+    //         $tanggal = $startDate;
+    //     }
+    //     // dd($tanggal);
+    //     // if (empty($tanggal) && empty($statusbayar)) {
+    //     //     return back();
+    //     // }
+
+    //     if ($startDate)  {
+    //         if (empty($statusbayar)) {
+    //             $transaksi = DetailTransaksi::join('transaksis', 'transaksis.id_transaksi', '=', 'detail_transaksis.id_transaksi')
+    //             ->join('users', 'users.id', '=', 'transaksis.id_user')
+    //             ->join('pakets', 'pakets.id_paket', '=', 'detail_transaksis.id_paket')
+    //             ->join('members', 'members.id_member', '=', 'transaksis.id_member')
+    //             ->join('outlets', 'outlets.id_outlet', '=', 'transaksis.id_outlet')
+    //             ->whereBetween('transaksis.tgl', [$startDate, $endDate])
+    //             ->orWhere('transaksis.tgl', $tanggal)
+    //             ->where('transaksis.id_outlet', $user->id_outlet)
+    //             ->select('users.*', 'members.*', 'outlets.*', 'detail_transaksis.*', 'pakets.*', 'transaksis.*')
+    //             // ->orderByRaw("FIELD(transaksis.dibayar, 'hutang', 'belum_dibayar', 'dibayar')")
+    //             ->get();
+    //         } else {
+    //             $transaksi = DetailTransaksi::join('transaksis', 'transaksis.id_transaksi', '=', 'detail_transaksis.id_transaksi')
+    //             ->join('users', 'users.id', '=', 'transaksis.id_user')
+    //             ->join('pakets', 'pakets.id_paket', '=', 'detail_transaksis.id_paket')
+    //             ->join('members', 'members.id_member', '=', 'transaksis.id_member')
+    //             ->join('outlets', 'outlets.id_outlet', '=', 'transaksis.id_outlet')
+    //             ->whereBetween('transaksis.tgl', [$startDate, $endDate])
+    //             ->orWhere('transaksis.tgl', $tanggal)
+    //             ->where('transaksis.dibayar', $statusbayar)
+    //             ->where('transaksis.id_outlet', $user->id_outlet)
+    //             ->select('users.*', 'members.*', 'outlets.*', 'detail_transaksis.*', 'pakets.*', 'transaksis.*')
+    //             // ->orderByRaw("FIELD(transaksis.dibayar, 'hutang', 'belum_dibayar', 'dibayar')")
+    //             ->get();
+    //         }
+    //         return view('transaksi.data', compact('transaksi'));
+    //     } elseif(empty($tanggal)) {
+    //         $transaksi = DetailTransaksi::join('transaksis', 'transaksis.id_transaksi', '=', 'detail_transaksis.id_transaksi')
+    //         ->join('users', 'users.id', '=', 'transaksis.id_user')
+    //         ->join('pakets', 'pakets.id_paket', '=', 'detail_transaksis.id_paket')
+    //         ->join('members', 'members.id_member', '=', 'transaksis.id_member')
+    //         ->join('outlets', 'outlets.id_outlet', '=', 'transaksis.id_outlet')
+    //         ->where('transaksis.dibayar', $statusbayar)
+    //         ->select('users.*', 'members.*', 'outlets.*', 'detail_transaksis.*', 'pakets.*', 'transaksis.*')
+    //         ->where('transaksis.id_outlet', $user->id_outlet)
+    //         // ->orderByRaw("FIELD(transaksis.dibayar, 'hutang', 'belum_dibayar', 'dibayar')")
+    //         ->get();
+
+    //         return view('transaksi.data', compact('transaksi'));
+    //     }
+    // }
     {
-        //
+        $user = Auth::user();
+        $startDate = $request->tanggalawal;
+        $endDate = $request->tanggalakhir;
+        $statusbayar = $request->status_bayar;
+        $tanggal = null;
+        if (empty($startDate)) {
+            $tanggal = $endDate;
+        } else {
+            $tanggal = $startDate;
+        }
+        // dd($tanggal);
+        // if (empty($tanggal) && empty($statusbayar)) {
+        //     return back();
+        // }
+        if (empty($statusbayar)) {
+            $transaksi = DetailTransaksi::join('transaksis', 'transaksis.id_transaksi', '=', 'detail_transaksis.id_transaksi')
+            ->join('users', 'users.id', '=', 'transaksis.id_user')
+            ->join('pakets', 'pakets.id_paket', '=', 'detail_transaksis.id_paket')
+            ->join('members', 'members.id_member', '=', 'transaksis.id_member')
+            ->join('outlets', 'outlets.id_outlet', '=', 'transaksis.id_outlet')
+            ->where('transaksis.id_outlet', $user->id_outlet)
+            ->where(function ($filter) use ($startDate, $endDate, $statusbayar,$tanggal){
+                if (empty($statusbayar)) {
+                    $filter->whereBetween('transaksis.tgl', [$startDate, $endDate]);
+                    $filter->orWhere('transaksis.tgl', $tanggal);
+                } elseif($statusbayar) {
+                    if (empty($tanggal)) { //filter 2 tanggal + statusbayar
+                        $filter->whereBetween('transaksis.tgl', [$startDate, $endDate]);
+                        $filter->where('transaksis.dibayar', $statusbayar);
+                    } elseif ($tanggal) { //filter 1 tanggal + statusbayar
+                        $filter->where('transaksis.tgl', $tanggal);
+                        $filter->where('transaksis.dibayar', $statusbayar);
+                    }
+                }
+
+            })
+            ->select('users.*', 'members.*', 'outlets.*', 'detail_transaksis.*', 'pakets.*', 'transaksis.*')
+            // ->orderByRaw("FIELD(transaksis.dibayar, 'hutang', 'belum_dibayar', 'dibayar')")
+            ->get();
+
+        } else {
+            $transaksi = DetailTransaksi::join('transaksis', 'transaksis.id_transaksi', '=', 'detail_transaksis.id_transaksi')
+            ->join('users', 'users.id', '=', 'transaksis.id_user')
+            ->join('pakets', 'pakets.id_paket', '=', 'detail_transaksis.id_paket')
+            ->join('members', 'members.id_member', '=', 'transaksis.id_member')
+            ->join('outlets', 'outlets.id_outlet', '=', 'transaksis.id_outlet')
+            ->where('transaksis.id_outlet', $user->id_outlet)
+            ->where('transaksis.dibayar', $statusbayar)
+            ->select('users.*', 'members.*', 'outlets.*', 'detail_transaksis.*', 'pakets.*', 'transaksis.*')
+            // ->orderByRaw("FIELD(transaksis.dibayar, 'hutang', 'belum_dibayar', 'dibayar')")
+            ->get();
+
+        }
+
+        // $transaksi = DetailTransaksi::join('transaksis', 'transaksis.id_transaksi', '=', 'detail_transaksis.id_transaksi')
+        // ->join('users', 'users.id', '=', 'transaksis.id_user')
+        // ->join('pakets', 'pakets.id_paket', '=', 'detail_transaksis.id_paket')
+        // ->join('members', 'members.id_member', '=', 'transaksis.id_member')
+        // ->join('outlets', 'outlets.id_outlet', '=', 'transaksis.id_outlet')
+        // ->where('transaksis.id_outlet', $user->id_outlet)
+        // ->when(empty($statusbayar), function ($query) use ($startDate, $endDate, $tanggal) {
+        //     $query->where(function ($filter) use ($startDate, $endDate, $tanggal) {
+        //         $filter->whereBetween('transaksis.tgl', [$startDate, $endDate]);
+        //         $filter->orWhere('transaksis.tgl', $tanggal);
+        //     });
+        // }, function ($query) use ($statusbayar, $tanggal, $startDate, $endDate) {
+        //     $query->where('transaksis.dibayar', $statusbayar);
+        //     if (!empty($tanggal)) {
+        //         $query->whereBetween('transaksis.tgl', [$startDate, $endDate]);
+        //         $query->where('transaksis.tgl', $tanggal);
+        //     }
+        // })
+        // ->select('users.*', 'members.*', 'outlets.*', 'detail_transaksis.*', 'pakets.*', 'transaksis.*')
+        // // ->orderByRaw("FIELD(transaksis.dibayar, 'hutang', 'belum_dibayar', 'dibayar')")
+        // ->get();
+
+        return view('transaksi.data', compact('transaksi'));
     }
 
     /**

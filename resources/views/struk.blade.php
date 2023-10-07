@@ -8,7 +8,7 @@
     <title>Struk</title>
     <style>
         .container {
-            width: 62mm;
+            width: 57mm;
             position: absolute;
             left: 50%;
             /* width:200px;
@@ -45,7 +45,7 @@
         }
 
         .flex-container {
-            width: 62mm;
+            /* width: 58mm; */
             display: flex;
         }
 
@@ -113,6 +113,7 @@
         </div>
         @php
             $total = 0;
+            $didiskon = 0;
         @endphp
         @foreach ($struk as $struk)
             @php
@@ -155,7 +156,11 @@
                     @if ($struk->dibayar == 'belum_dibayar')
                         <li>Tgl Tenggat</li>
                     @endif
+                    @if ($struk->dibayar == 'hutang')
+                        <li>Sisa Hutang</li>
+                    @endif
                     @if ($struk->dibayar == 'dibayar')
+                        <li>Bayar</li>
                         <li>Kembali</li>
                     @endif
                     <li>Keterangan</li>
@@ -169,11 +174,18 @@
                     @if ($struk->dibayar == 'belum_dibayar')
                     <li>Belum Dibayar</li>
                     @endif
+                    @if ($struk->dibayar == 'hutang')
+                    <li>Hutang</li>
+                    @endif
                     @if ($struk->dibayar == 'belum_dibayar')
                         <li>{{ substr($struk->batas_waktu,0 ,10) }}</li>
                     @endif
                     @if ($struk->dibayar == 'dibayar')
-                    <li>{{ $struk->kembali }}</li>
+                    <li>Rp. {{ number_format($struk->bayarnow, 0,'.',',') }}</li>
+                    <li>Rp. {{ number_format($struk->kembali, 0,'.',',') }}</li>
+                    @endif
+                    @if ($struk->dibayar == 'hutang')
+                    <li>Rp. {{ number_format($struk->sisa_hutang, 0,',','.') }}</li>
                     @endif
                     <li>{{ $struk->keterangan }}</li>
                 </ul>

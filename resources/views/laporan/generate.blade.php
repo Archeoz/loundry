@@ -4,7 +4,7 @@
 <div class="container">
 
     <!-- Page Heading -->
-    <h1 class="h3 mb-2 text-gray-800">Data Transaksi</h1>
+    <h1 class="h3 mb-2 text-gray-800">Generate Data Transaksi</h1>
 
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
@@ -19,16 +19,17 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Id Transaksi</th>
+                            <th>Kode Invoice</th>
                             <th>Pegawai</th>
                             <th>Member</th>
                             <th>Outlet</th>
                             <th>Paket</th>
-                            <th>Total Harga Paket</th>
                             <th>Total</th>
                             <th>Tgl Masuk</th>
                             <th>Batas Waktu</th>
                             <th>Tgl Bayar</th>
+                            <th>Sisa Hutang</th>
+                            <th>Keterangan</th>
                             <th>Status Pembayaran</th>
                             <th>Status</th>
                         </tr>
@@ -40,12 +41,11 @@
                         @foreach ( $datagenerate as $generate )
                         <tr>
                             <td>{{ $no++ }}.</td>
-                            <td>{{ $generate->id_transaksi }}</td>
+                            <td>{{ $generate->kode_invoice }}</td>
                             <td>{{ $generate->username_user }}</td>
                             <td>{{ $generate->member }}</td>
                             <td>{{ $generate->outlet }}</td>
                             <td>{{ $generate->paket }}</td>
-                            <td>{{ $generate->total_harga_paket }}</td>
                             {{-- <td>
                                 @foreach (explode('.',$generate->nama_paket) as $item)
                                     {{ $item }}
@@ -60,9 +60,10 @@
                             <td>{{ $generate->tgl_masuk }}</td>
                             <td>{{ $generate->batas_waktu_bayar }}</td>
                             <td>{{ $generate->tgl_bayar }}</td>
+                            <td>{{ $generate->sisa_hutang }}</td>
+                            <td>{{ $generate->keterangan }}</td>
                             <td>{{ $generate->status_pembayaran }}</td>
                             <td>{{ $generate->status }}</td>
-
                         </tr>
                         @endforeach
                         <div class="modal fade" id="deletemember" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"

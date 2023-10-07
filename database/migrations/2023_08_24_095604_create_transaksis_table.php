@@ -18,15 +18,16 @@ return new class extends Migration
             $table->integer('id_outlet')->nullable();
             $table->integer('id_member');
             $table->unsignedBigInteger('kode_invoice');
-            $table->dateTime('tgl');
+            $table->date('tgl');
             $table->dateTime('batas_waktu');
             $table->dateTime('tgl_bayar')->nullable();
             $table->integer('biaya_tambahan')->nullable();
+            $table->integer('bayarnow')->nullable();
             $table->double('diskon');
             $table->integer('pajak');
             $table->integer('kembali');
             $table->enum('status',['baru','proses','selesai','diambil'])->default('baru');
-            $table->enum('dibayar',['dibayar','belum_dibayar']);
+            $table->enum('dibayar',['dibayar','belum_dibayar','hutang']);
             $table->timestamps();
             $table->softDeletes()->nullable();
         });
